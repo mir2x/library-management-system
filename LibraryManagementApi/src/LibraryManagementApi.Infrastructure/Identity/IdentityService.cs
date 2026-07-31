@@ -61,4 +61,31 @@ public class IdentityService(UserManager<ApplicationUser> userManager) : IIdenti
 
         return new AuthenticatedUser(user.Id, user.Email!, user.FullName, roles.ToList());
     }
+
+    public async Task<string?> GeneratePasswordResetTokenAsync(string email, CancellationToken cancellationToken)
+    {
+        var user = await userManager.FindByEmailAsync(email);
+        if (user is null)
+        {
+            return null;
+        }
+
+        return await userManager.GeneratePasswordResetTokenAsync(user);
+    }
+
+    public async Task<Result> ResetPasswordAsync(string email, string token, string newPassword, CancellationToken cancellationToken)
+    {
+        var user = await userManager.FindByEmailAsync(email);
+        if (user is null)
+        {
+            // Don't reveal whether the account exists — same message as an invalid token.
+            return Result.Failure(["Invalid or expired reset token."]);
+        }
+
+        var result = await userManager.ResetPasswordAsync(user, token, newPassword);
+
+        return result.Succeeded
+            ? Result.Success()
+            : Result.Failure(["Invalid or expired reset token."]);
+    }
 }

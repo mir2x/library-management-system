@@ -4,6 +4,11 @@
 bin/
 obj/
 out/
+
+# Defensive: dotnet-ef's design-time build host occasionally creates a
+# literally-named "bin\Debug" directory on Linux/macOS (backslash as a
+# regular character, not a path separator) instead of bin/Debug.
+bin\\Debug/
 *.user
 *.userosscache
 *.suo

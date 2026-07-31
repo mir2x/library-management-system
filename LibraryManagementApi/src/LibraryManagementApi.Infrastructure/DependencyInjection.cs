@@ -1,5 +1,7 @@
 using System.Text;
 using LibraryManagementApi.Application.Common.Interfaces;
+using LibraryManagementApi.Infrastructure.Configuration;
+using LibraryManagementApi.Infrastructure.Email;
 using LibraryManagementApi.Infrastructure.Identity;
 using LibraryManagementApi.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -55,8 +57,13 @@ public static class DependencyInjection
 
         services.AddAuthorization();
 
+        services.Configure<EmailSettings>(configuration.GetSection(EmailSettings.SectionName));
+        services.Configure<ClientAppOptions>(configuration.GetSection(ClientAppOptions.SectionName));
+
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+        services.AddScoped<IEmailSender, MailKitEmailSender>();
+        services.AddScoped<IAppUrlProvider, AppUrlProvider>();
 
         return services;
     }
