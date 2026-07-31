@@ -1,3 +1,4 @@
+using LibraryManagementApi.Application.Common.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using ValidationException = LibraryManagementApi.Application.Common.Exceptions.ValidationException;
@@ -16,6 +17,20 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
                 {
                     Status = StatusCodes.Status400BadRequest,
                     Title = "One or more validation errors occurred.",
+                },
+                cancellationToken);
+
+            return true;
+        }
+
+        if (exception is NotFoundException notFoundException)
+        {
+            httpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+            await httpContext.Response.WriteAsJsonAsync(
+                new ProblemDetails
+                {
+                    Status = StatusCodes.Status404NotFound,
+                    Title = notFoundException.Message,
                 },
                 cancellationToken);
 

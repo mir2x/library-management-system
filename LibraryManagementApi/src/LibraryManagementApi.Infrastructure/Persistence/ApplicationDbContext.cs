@@ -11,16 +11,12 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 {
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
+    public DbSet<Branch> Branches => Set<Branch>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
 
-        builder.Entity<RefreshToken>(entity =>
-        {
-            entity.Property(rt => rt.Token).IsRequired().HasMaxLength(512);
-            entity.HasIndex(rt => rt.Token).IsUnique();
-            entity.Property(rt => rt.UserId).IsRequired();
-            entity.HasIndex(rt => rt.UserId);
-        });
+        builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
     }
 }

@@ -13,6 +13,8 @@ public class TestApplicationDbContext(DbContextOptions<TestApplicationDbContext>
     : DbContext(options), IApplicationDbContext
 {
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+
+    public DbSet<Branch> Branches => Set<Branch>();
 }
 
 public static class TestApplicationDbContextFactory
