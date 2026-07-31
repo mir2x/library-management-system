@@ -44,6 +44,7 @@ app.MapBookEndpoints();
 app.MapMemberEndpoints();
 app.MapLoanEndpoints();
 app.MapReservationEndpoints();
+app.MapReportEndpoints();
 
 app.Run();
 
