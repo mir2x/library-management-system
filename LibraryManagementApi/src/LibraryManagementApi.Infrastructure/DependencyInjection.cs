@@ -33,7 +33,11 @@ public static class DependencyInjection
                 options.User.RequireUniqueEmail = true;
             })
             .AddRoles<IdentityRole>()
-            .AddEntityFrameworkStores<ApplicationDbContext>();
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            // AddIdentityCore, unlike AddIdentity, does not register these on its own — without
+            // it, GenerateUserTokenAsync (password reset, email confirmation, etc.) throws
+            // "No IUserTwoFactorTokenProvider<TUser> named 'Default' is registered."
+            .AddDefaultTokenProviders();
 
         services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
 

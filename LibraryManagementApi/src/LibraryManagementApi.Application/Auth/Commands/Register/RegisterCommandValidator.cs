@@ -20,7 +20,10 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
             .MinimumLength(8)
             .Matches("[A-Z]").WithMessage("Password must contain at least one uppercase letter.")
             .Matches("[a-z]").WithMessage("Password must contain at least one lowercase letter.")
-            .Matches("[0-9]").WithMessage("Password must contain at least one digit.");
+            .Matches("[0-9]").WithMessage("Password must contain at least one digit.")
+            // Matches Identity's default RequireNonAlphanumeric policy (see AddInfrastructureServices) —
+            // without this the client-facing validation message wouldn't warn about the real requirement.
+            .Matches("[^a-zA-Z0-9]").WithMessage("Password must contain at least one special character.");
 
         RuleFor(x => x.BranchId)
             .NotEqual(Guid.Empty)
