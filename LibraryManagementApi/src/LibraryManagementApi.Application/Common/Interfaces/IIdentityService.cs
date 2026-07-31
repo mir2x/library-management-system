@@ -7,4 +7,6 @@ public interface IIdentityService
     Task<Result<AuthenticatedUser>> CreateUserAsync(string email, string password, string fullName, string role, CancellationToken cancellationToken);
 
     Task<AuthenticatedUser?> ValidateCredentialsAsync(string email, string password, CancellationToken cancellationToken);
+
+    Task<AuthenticatedUser?> GetUserByIdAsync(string userId, CancellationToken cancellationToken);
 }

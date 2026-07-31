@@ -48,4 +48,17 @@ public class IdentityService(UserManager<ApplicationUser> userManager) : IIdenti
 
         return new AuthenticatedUser(user.Id, user.Email!, user.FullName, roles.ToList());
     }
+
+    public async Task<AuthenticatedUser?> GetUserByIdAsync(string userId, CancellationToken cancellationToken)
+    {
+        var user = await userManager.FindByIdAsync(userId);
+        if (user is null)
+        {
+            return null;
+        }
+
+        var roles = await userManager.GetRolesAsync(user);
+
+        return new AuthenticatedUser(user.Id, user.Email!, user.FullName, roles.ToList());
+    }
 }

@@ -26,10 +26,16 @@ public class RefreshToken
 
     public DateTime? RevokedAtUtc { get; private set; }
 
+    public string? ReplacedByToken { get; private set; }
+
     public bool IsActive => RevokedAtUtc is null && DateTime.UtcNow < ExpiresAtUtc;
 
     public static RefreshToken Create(string token, string userId, DateTime expiresAtUtc) =>
         new(token, userId, expiresAtUtc);
 
-    public void Revoke() => RevokedAtUtc = DateTime.UtcNow;
+    public void Revoke(string? replacedByToken = null)
+    {
+        RevokedAtUtc = DateTime.UtcNow;
+        ReplacedByToken = replacedByToken;
+    }
 }

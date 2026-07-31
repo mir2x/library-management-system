@@ -1,5 +1,6 @@
 using LibraryManagementApi.Application.Auth;
 using LibraryManagementApi.Application.Auth.Commands.Login;
+using LibraryManagementApi.Application.Auth.Commands.Refresh;
 using LibraryManagementApi.Application.Auth.Commands.Register;
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -20,6 +21,10 @@ public static class AuthEndpoints
             .WithName("Login")
             .WithSummary("Authenticate and receive an access + refresh token.");
 
+        group.MapPost("/refresh", RefreshAsync)
+            .WithName("Refresh")
+            .WithSummary("Exchange a valid refresh token for a new access + refresh token.");
+
         return app;
     }
 
@@ -35,6 +40,16 @@ public static class AuthEndpoints
 
     private static async Task<Results<Ok<AuthResponse>, UnauthorizedHttpResult>> LoginAsync(
         LoginCommand command, ISender sender, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(command, cancellationToken);
+
+        return result.Succeeded
+            ? TypedResults.Ok(result.Value!)
+            : TypedResults.Unauthorized();
+    }
+
+    private static async Task<Results<Ok<AuthResponse>, UnauthorizedHttpResult>> RefreshAsync(
+        RefreshCommand command, ISender sender, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command, cancellationToken);
 
