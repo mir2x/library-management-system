@@ -61,9 +61,67 @@ public class BookInventoryTests
         Assert.Throws<DomainException>(() => inventory.SetTotalCopies(-1));
     }
 
-    // Note: the "can't reduce total copies below the number currently borrowed" guard in
-    // SetTotalCopies can't be exercised yet — Create/SetTotalCopies always keep AvailableCopies
-    // in lockstep with TotalCopies, so no borrowed state is reachable through this entity's
-    // current public API. That guard becomes testable once the Borrow & Return module adds a
-    // method that decrements AvailableCopies independently of TotalCopies.
+    [Fact]
+    public void Borrow_WithAvailableCopies_DecrementsAvailableCopiesOnly()
+    {
+        var inventory = BookInventory.Create(Guid.NewGuid(), Guid.NewGuid(), 5);
+
+        inventory.Borrow();
+
+        Assert.Equal(5, inventory.TotalCopies);
+        Assert.Equal(4, inventory.AvailableCopies);
+    }
+
+    [Fact]
+    public void Borrow_WithNoAvailableCopies_ThrowsDomainException()
+    {
+        var inventory = BookInventory.Create(Guid.NewGuid(), Guid.NewGuid(), 1);
+        inventory.Borrow();
+
+        Assert.Throws<DomainException>(inventory.Borrow);
+    }
+
+    [Fact]
+    public void Return_AfterABorrow_IncrementsAvailableCopiesBackToTotal()
+    {
+        var inventory = BookInventory.Create(Guid.NewGuid(), Guid.NewGuid(), 5);
+        inventory.Borrow();
+
+        inventory.Return();
+
+        Assert.Equal(5, inventory.AvailableCopies);
+    }
+
+    [Fact]
+    public void Return_WithNothingBorrowed_ThrowsDomainException()
+    {
+        var inventory = BookInventory.Create(Guid.NewGuid(), Guid.NewGuid(), 5);
+
+        Assert.Throws<DomainException>(inventory.Return);
+    }
+
+    [Fact]
+    public void SetTotalCopies_BelowCurrentlyBorrowedCount_ThrowsDomainException()
+    {
+        // Now that Borrow() can decrement AvailableCopies independently of TotalCopies, this
+        // guard (previously unreachable — see git history) is finally exercisable.
+        var inventory = BookInventory.Create(Guid.NewGuid(), Guid.NewGuid(), 5);
+        inventory.Borrow();
+        inventory.Borrow(); // 2 borrowed, 3 available
+
+        Assert.Throws<DomainException>(() => inventory.SetTotalCopies(1));
+    }
+
+    [Fact]
+    public void SetTotalCopies_AtOrAboveCurrentlyBorrowedCount_Succeeds()
+    {
+        var inventory = BookInventory.Create(Guid.NewGuid(), Guid.NewGuid(), 5);
+        inventory.Borrow();
+        inventory.Borrow(); // 2 borrowed, 3 available
+
+        inventory.SetTotalCopies(2);
+
+        Assert.Equal(2, inventory.TotalCopies);
+        Assert.Equal(0, inventory.AvailableCopies);
+    }
 }

@@ -51,4 +51,24 @@ public class BookInventory : BaseAuditableEntity
         AvailableCopies += newTotalCopies - TotalCopies;
         TotalCopies = newTotalCopies;
     }
+
+    public void Borrow()
+    {
+        if (AvailableCopies <= 0)
+        {
+            throw new DomainException("No copies available to borrow.");
+        }
+
+        AvailableCopies--;
+    }
+
+    public void Return()
+    {
+        if (AvailableCopies >= TotalCopies)
+        {
+            throw new DomainException("Cannot return more copies than are accounted for.");
+        }
+
+        AvailableCopies++;
+    }
 }

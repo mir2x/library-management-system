@@ -15,5 +15,7 @@ public interface IApplicationDbContext
 
     DbSet<Member> Members { get; }
 
+    DbSet<Loan> Loans { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

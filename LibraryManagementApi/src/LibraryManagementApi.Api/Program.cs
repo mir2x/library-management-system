@@ -42,6 +42,7 @@ app.MapAuthEndpoints();
 app.MapBranchEndpoints();
 app.MapBookEndpoints();
 app.MapMemberEndpoints();
+app.MapLoanEndpoints();
 
 app.Run();
 

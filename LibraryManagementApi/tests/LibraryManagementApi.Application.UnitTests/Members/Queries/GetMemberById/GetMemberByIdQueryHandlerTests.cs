@@ -18,8 +18,10 @@ public class GetMemberByIdQueryHandlerTests
     public async Task Handle_WithExistingMember_ReturnsDtoWithBranchName()
     {
         var branch = Branch.Create("Downtown Branch", "123 Main St", null, null);
-        var member = Member.Create("MEM-00000001", "Jane Doe", "jane.doe@example.com", null, null, branch.Id, null);
         _context.Branches.Add(branch);
+        await _context.SaveChangesAsync(CancellationToken.None);
+
+        var member = Member.Create("MEM-00000001", "Jane Doe", "jane.doe@example.com", null, null, branch.Id, null);
         _context.Members.Add(member);
         await _context.SaveChangesAsync(CancellationToken.None);
 

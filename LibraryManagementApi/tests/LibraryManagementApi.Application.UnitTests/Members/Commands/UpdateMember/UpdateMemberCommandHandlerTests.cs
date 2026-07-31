@@ -19,8 +19,10 @@ public class UpdateMemberCommandHandlerTests
     public async Task Handle_WithPartialFields_UpdatesOnlyProvidedFieldsAndLeavesOthersUnchanged()
     {
         var branch = Branch.Create("Downtown Branch", "123 Main St", null, null);
-        var member = Member.Create("MEM-00000001", "Jane Doe", "jane.doe@example.com", "555-0100", "456 Elm St", branch.Id, null);
         _context.Branches.Add(branch);
+        await _context.SaveChangesAsync(CancellationToken.None);
+
+        var member = Member.Create("MEM-00000001", "Jane Doe", "jane.doe@example.com", "555-0100", "456 Elm St", branch.Id, null);
         _context.Members.Add(member);
         await _context.SaveChangesAsync(CancellationToken.None);
 
@@ -48,8 +50,10 @@ public class UpdateMemberCommandHandlerTests
     public async Task Handle_WithUnknownHomeBranchId_ThrowsNotFoundException()
     {
         var branch = Branch.Create("Downtown Branch", "123 Main St", null, null);
-        var member = Member.Create("MEM-00000001", "Jane Doe", "jane.doe@example.com", null, null, branch.Id, null);
         _context.Branches.Add(branch);
+        await _context.SaveChangesAsync(CancellationToken.None);
+
+        var member = Member.Create("MEM-00000001", "Jane Doe", "jane.doe@example.com", null, null, branch.Id, null);
         _context.Members.Add(member);
         await _context.SaveChangesAsync(CancellationToken.None);
 
@@ -62,9 +66,11 @@ public class UpdateMemberCommandHandlerTests
     public async Task Handle_WithEmailMatchingAnotherActiveMember_ReturnsFailure()
     {
         var branch = Branch.Create("Downtown Branch", "123 Main St", null, null);
+        _context.Branches.Add(branch);
+        await _context.SaveChangesAsync(CancellationToken.None);
+
         var existing = Member.Create("MEM-00000001", "John Smith", "john.smith@example.com", null, null, branch.Id, null);
         var target = Member.Create("MEM-00000002", "Jane Doe", "jane.doe@example.com", null, null, branch.Id, null);
-        _context.Branches.Add(branch);
         _context.Members.AddRange(existing, target);
         await _context.SaveChangesAsync(CancellationToken.None);
 

@@ -18,8 +18,10 @@ public class GetMyMemberProfileQueryHandlerTests
     public async Task Handle_WithLinkedMember_ReturnsDto()
     {
         var branch = Branch.Create("Downtown Branch", "123 Main St", null, null);
-        var member = Member.Create("MEM-00000001", "Jane Doe", "jane.doe@example.com", null, null, branch.Id, userId: "user-1");
         _context.Branches.Add(branch);
+        await _context.SaveChangesAsync(CancellationToken.None);
+
+        var member = Member.Create("MEM-00000001", "Jane Doe", "jane.doe@example.com", null, null, branch.Id, userId: "user-1");
         _context.Members.Add(member);
         await _context.SaveChangesAsync(CancellationToken.None);
 
@@ -41,8 +43,10 @@ public class GetMyMemberProfileQueryHandlerTests
     public async Task Handle_WithWalkInMembersHavingNoUserId_DoesNotMatchThem()
     {
         var branch = Branch.Create("Downtown Branch", "123 Main St", null, null);
-        var walkIn = Member.Create("MEM-00000001", "Walk In Member", "walkin@example.com", null, null, branch.Id, userId: null);
         _context.Branches.Add(branch);
+        await _context.SaveChangesAsync(CancellationToken.None);
+
+        var walkIn = Member.Create("MEM-00000001", "Walk In Member", "walkin@example.com", null, null, branch.Id, userId: null);
         _context.Members.Add(walkIn);
         await _context.SaveChangesAsync(CancellationToken.None);
 
