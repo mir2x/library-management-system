@@ -36,6 +36,10 @@ public static class DependencyInjection
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
+                // Keep claim types exactly as issued (e.g. "sub") instead of ASP.NET Core's
+                // default remap to long-form ClaimTypes.* URIs, so claim lookups match what
+                // JwtTokenGenerator actually wrote into the token.
+                options.MapInboundClaims = false;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,

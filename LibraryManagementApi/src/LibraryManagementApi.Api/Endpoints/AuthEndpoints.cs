@@ -1,7 +1,10 @@
+using System.Security.Claims;
 using LibraryManagementApi.Application.Auth;
 using LibraryManagementApi.Application.Auth.Commands.Login;
+using LibraryManagementApi.Application.Auth.Commands.Logout;
 using LibraryManagementApi.Application.Auth.Commands.Refresh;
 using LibraryManagementApi.Application.Auth.Commands.Register;
+using LibraryManagementApi.Application.Auth.Queries.GetCurrentUser;
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
 
@@ -24,6 +27,15 @@ public static class AuthEndpoints
         group.MapPost("/refresh", RefreshAsync)
             .WithName("Refresh")
             .WithSummary("Exchange a valid refresh token for a new access + refresh token.");
+
+        group.MapPost("/logout", LogoutAsync)
+            .WithName("Logout")
+            .WithSummary("Revoke a refresh token, ending that session.");
+
+        group.MapGet("/me", MeAsync)
+            .RequireAuthorization()
+            .WithName("Me")
+            .WithSummary("Return the currently authenticated user.");
 
         return app;
     }
@@ -52,6 +64,31 @@ public static class AuthEndpoints
         RefreshCommand command, ISender sender, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command, cancellationToken);
+
+        return result.Succeeded
+            ? TypedResults.Ok(result.Value!)
+            : TypedResults.Unauthorized();
+    }
+
+    private static async Task<NoContent> LogoutAsync(LogoutCommand command, ISender sender, CancellationToken cancellationToken)
+    {
+        await sender.Send(command, cancellationToken);
+
+        return TypedResults.NoContent();
+    }
+
+    private static async Task<Results<Ok<CurrentUserResponse>, UnauthorizedHttpResult>> MeAsync(
+        ClaimsPrincipal user, ISender sender, CancellationToken cancellationToken)
+    {
+        // "sub" matches the literal claim type JwtTokenGenerator wrote into the token;
+        // MapInboundClaims = false keeps ASP.NET Core from remapping it on the way in.
+        var userId = user.FindFirstValue("sub");
+        if (userId is null)
+        {
+            return TypedResults.Unauthorized();
+        }
+
+        var result = await sender.Send(new GetCurrentUserQuery(userId), cancellationToken);
 
         return result.Succeeded
             ? TypedResults.Ok(result.Value!)
