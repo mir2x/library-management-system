@@ -1,9 +1,11 @@
 using System.Security.Claims;
 using LibraryManagementApi.Application.Auth;
+using LibraryManagementApi.Application.Auth.Commands.ForgotPassword;
 using LibraryManagementApi.Application.Auth.Commands.Login;
 using LibraryManagementApi.Application.Auth.Commands.Logout;
 using LibraryManagementApi.Application.Auth.Commands.Refresh;
 using LibraryManagementApi.Application.Auth.Commands.Register;
+using LibraryManagementApi.Application.Auth.Commands.ResetPassword;
 using LibraryManagementApi.Application.Auth.Queries.GetCurrentUser;
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -36,6 +38,14 @@ public static class AuthEndpoints
             .RequireAuthorization()
             .WithName("Me")
             .WithSummary("Return the currently authenticated user.");
+
+        group.MapPost("/forgot-password", ForgotPasswordAsync)
+            .WithName("ForgotPassword")
+            .WithSummary("Send a password reset email if the account exists.");
+
+        group.MapPost("/reset-password", ResetPasswordAsync)
+            .WithName("ResetPassword")
+            .WithSummary("Complete a password reset using the token from the reset email.");
 
         return app;
     }
@@ -93,5 +103,23 @@ public static class AuthEndpoints
         return result.Succeeded
             ? TypedResults.Ok(result.Value!)
             : TypedResults.Unauthorized();
+    }
+
+    private static async Task<NoContent> ForgotPasswordAsync(ForgotPasswordCommand command, ISender sender, CancellationToken cancellationToken)
+    {
+        // Always 204, regardless of whether the account exists — see the handler for why.
+        await sender.Send(command, cancellationToken);
+
+        return TypedResults.NoContent();
+    }
+
+    private static async Task<Results<NoContent, BadRequest<IEnumerable<string>>>> ResetPasswordAsync(
+        ResetPasswordCommand command, ISender sender, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(command, cancellationToken);
+
+        return result.Succeeded
+            ? TypedResults.NoContent()
+            : TypedResults.BadRequest(result.Errors.AsEnumerable());
     }
 }
