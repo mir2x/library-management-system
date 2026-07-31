@@ -19,6 +19,8 @@ public class TestApplicationDbContext(DbContextOptions<TestApplicationDbContext>
     public DbSet<Book> Books => Set<Book>();
 
     public DbSet<BookInventory> BookInventories => Set<BookInventory>();
+
+    public DbSet<Member> Members => Set<Member>();
 }
 
 public static class TestApplicationDbContextFactory

@@ -13,5 +13,7 @@ public interface IApplicationDbContext
 
     DbSet<BookInventory> BookInventories { get; }
 
+    DbSet<Member> Members { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }
