@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: library-management-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: library_management
+      POSTGRES_USER: library_admin
+      POSTGRES_PASSWORD: library_admin_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U library_admin -d library_management"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres-data:
