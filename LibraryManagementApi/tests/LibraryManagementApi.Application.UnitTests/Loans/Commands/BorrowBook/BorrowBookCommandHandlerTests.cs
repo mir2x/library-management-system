@@ -1,4 +1,5 @@
 using LibraryManagementApi.Application.Common.Exceptions;
+using LibraryManagementApi.Application.Loans;
 using LibraryManagementApi.Application.Loans.Commands.BorrowBook;
 using LibraryManagementApi.Application.UnitTests.TestSupport;
 using LibraryManagementApi.Domain.Entities;
@@ -12,7 +13,7 @@ public class BorrowBookCommandHandlerTests
 
     public BorrowBookCommandHandlerTests()
     {
-        _handler = new BorrowBookCommandHandler(_context);
+        _handler = new BorrowBookCommandHandler(_context, new LoanEligibilityChecker(_context));
     }
 
     private async Task<(Member Member, Book Book, Branch Branch)> SeedMemberBookBranchWithInventoryAsync(int availableCopies = 1)

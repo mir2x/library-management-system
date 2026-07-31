@@ -52,6 +52,20 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
             return true;
         }
 
+        if (exception is ForbiddenAccessException forbiddenAccessException)
+        {
+            httpContext.Response.StatusCode = StatusCodes.Status403Forbidden;
+            await httpContext.Response.WriteAsJsonAsync(
+                new ProblemDetails
+                {
+                    Status = StatusCodes.Status403Forbidden,
+                    Title = forbiddenAccessException.Message,
+                },
+                cancellationToken);
+
+            return true;
+        }
+
         logger.LogError(exception, "Unhandled exception");
 
         httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;

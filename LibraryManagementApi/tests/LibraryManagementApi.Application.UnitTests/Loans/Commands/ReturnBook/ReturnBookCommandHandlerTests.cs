@@ -1,5 +1,6 @@
 using LibraryManagementApi.Application.Common.Exceptions;
 using LibraryManagementApi.Application.Loans.Commands.ReturnBook;
+using LibraryManagementApi.Application.Reservations;
 using LibraryManagementApi.Application.UnitTests.TestSupport;
 using LibraryManagementApi.Domain.Entities;
 using LibraryManagementApi.Domain.Enums;
@@ -14,7 +15,7 @@ public class ReturnBookCommandHandlerTests
 
     public ReturnBookCommandHandlerTests()
     {
-        _handler = new ReturnBookCommandHandler(_context);
+        _handler = new ReturnBookCommandHandler(_context, new ReservationAllocator(_context));
     }
 
     [Fact]

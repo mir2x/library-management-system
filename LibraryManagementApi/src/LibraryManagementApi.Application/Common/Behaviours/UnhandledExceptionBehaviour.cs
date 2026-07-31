@@ -16,7 +16,7 @@ public class UnhandledExceptionBehaviour<TRequest, TResponse>(ILogger<UnhandledE
         {
             return await next(cancellationToken);
         }
-        catch (Exception ex) when (ex is not ValidationException and not NotFoundException and not DomainException)
+        catch (Exception ex) when (ex is not ValidationException and not NotFoundException and not DomainException and not ForbiddenAccessException)
         {
             logger.LogError(ex, "Unhandled exception for request {RequestName} {@Request}", typeof(TRequest).Name, request);
             throw;

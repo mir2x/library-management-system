@@ -23,6 +23,8 @@ public class TestApplicationDbContext(DbContextOptions<TestApplicationDbContext>
     public DbSet<Member> Members => Set<Member>();
 
     public DbSet<Loan> Loans => Set<Loan>();
+
+    public DbSet<Reservation> Reservations => Set<Reservation>();
 }
 
 public static class TestApplicationDbContextFactory

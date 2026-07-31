@@ -1,13 +1,15 @@
 using LibraryManagementApi.Application.Common.Exceptions;
 using LibraryManagementApi.Application.Common.Interfaces;
 using LibraryManagementApi.Application.Common.Models;
+using LibraryManagementApi.Application.Reservations;
 using LibraryManagementApi.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace LibraryManagementApi.Application.Loans.Commands.ReturnBook;
 
-public class ReturnBookCommandHandler(IApplicationDbContext context) : IRequestHandler<ReturnBookCommand, Result>
+public class ReturnBookCommandHandler(IApplicationDbContext context, ReservationAllocator reservationAllocator)
+    : IRequestHandler<ReturnBookCommand, Result>
 {
     public async Task<Result> Handle(ReturnBookCommand request, CancellationToken cancellationToken)
     {
@@ -16,11 +18,9 @@ public class ReturnBookCommandHandler(IApplicationDbContext context) : IRequestH
 
         loan.MarkReturned();
 
-        var inventory = await context.BookInventories
-            .SingleOrDefaultAsync(i => i.BookId == loan.BookId && i.BranchId == loan.BranchId, cancellationToken)
-            ?? throw new InvalidOperationException("Inventory record missing for a book that was previously borrowed.");
-
-        inventory.Return();
+        // Hands the copy to the next pending reservation for this book/branch if one exists,
+        // otherwise releases it back to general availability.
+        await reservationAllocator.ReleaseCopyAsync(loan.BookId, loan.BranchId, cancellationToken);
 
         await context.SaveChangesAsync(cancellationToken);
 
