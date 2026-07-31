@@ -15,6 +15,10 @@ public class TestApplicationDbContext(DbContextOptions<TestApplicationDbContext>
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     public DbSet<Branch> Branches => Set<Branch>();
+
+    public DbSet<Book> Books => Set<Book>();
+
+    public DbSet<BookInventory> BookInventories => Set<BookInventory>();
 }
 
 public static class TestApplicationDbContextFactory

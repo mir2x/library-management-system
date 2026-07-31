@@ -9,5 +9,9 @@ public interface IApplicationDbContext
 
     DbSet<Branch> Branches { get; }
 
+    DbSet<Book> Books { get; }
+
+    DbSet<BookInventory> BookInventories { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

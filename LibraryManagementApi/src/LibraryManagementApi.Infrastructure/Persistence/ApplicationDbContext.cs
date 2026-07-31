@@ -13,6 +13,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     public DbSet<Branch> Branches => Set<Branch>();
 
+    public DbSet<Book> Books => Set<Book>();
+
+    public DbSet<BookInventory> BookInventories => Set<BookInventory>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

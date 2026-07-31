@@ -40,6 +40,7 @@ app.UseAuthorization();
 
 app.MapAuthEndpoints();
 app.MapBranchEndpoints();
+app.MapBookEndpoints();
 
 app.Run();
 

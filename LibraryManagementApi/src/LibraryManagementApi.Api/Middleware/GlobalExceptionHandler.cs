@@ -1,4 +1,5 @@
 using LibraryManagementApi.Application.Common.Exceptions;
+using LibraryManagementApi.Domain.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using ValidationException = LibraryManagementApi.Application.Common.Exceptions.ValidationException;
@@ -31,6 +32,20 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
                 {
                     Status = StatusCodes.Status404NotFound,
                     Title = notFoundException.Message,
+                },
+                cancellationToken);
+
+            return true;
+        }
+
+        if (exception is DomainException domainException)
+        {
+            httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+            await httpContext.Response.WriteAsJsonAsync(
+                new ProblemDetails
+                {
+                    Status = StatusCodes.Status400BadRequest,
+                    Title = domainException.Message,
                 },
                 cancellationToken);
 
