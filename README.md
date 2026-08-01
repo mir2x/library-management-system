@@ -12,6 +12,103 @@ Modules: Authentication & Authorization, Branch Management, Book Management (wit
 copy inventory), Member Management, Borrow & Return, Reservation Queue, and Reports — each with
 a Dashboard summary and role-based navigation (Admin / Librarian / Member) on the frontend.
 
+## Requirements Coverage
+
+Mapped directly against the assessment brief's own section headers, so each line here is a
+literal requirement, not a paraphrase.
+
+<details>
+<summary><strong>Functional Requirements</strong></summary>
+
+- [x] Authentication (JWT) & Role-based Authorization — access + refresh tokens, `Admin` /
+      `Librarian` / `Member` roles enforced via `.RequireAuthorization()` policies
+- [x] Branch Management — CRUD, soft delete, search by name/address
+- [x] Book Management — CRUD, soft delete, search by title/author/ISBN/genre, per-branch copy
+      inventory
+- [x] Member Management — CRUD, search, suspend/reactivate, self-registration auto-creates a
+      Member profile
+- [x] Borrow & Return Management — business rules enforced (max 5 active loans, no duplicate
+      active loan for the same book, no borrowing with zero available copies)
+- [x] Reservation Queue — FIFO queue, staff-assisted and self-service creation, automatic
+      Pending→Ready promotion on return, ownership-or-staff cancellation
+- [x] Reports — overdue loans, most-borrowed books, branch inventory, member activity,
+      reservation queue summary
+- [x] Standard CRUD operations, search/filtering where appropriate, and basic business
+      validations (FluentValidation on every command that takes free-form input)
+
+</details>
+
+<details>
+<summary><strong>Frontend Requirements</strong></summary>
+
+- [x] Login / Logout
+- [x] Dashboard — live stat cards (role-specific: staff see catalog/branch/overdue/reservation
+      counts, Members see their own active loans/reservations)
+- [x] Role-based Navigation — nav items and routes both gated by role, not just hidden in the UI
+- [x] Branch, Book & Member Management
+- [x] Borrow & Return
+- [x] Reservation Queue
+- [x] Reports
+- [x] Responsive UI — audited and fixed at mobile (375px) and tablet (768px) breakpoints
+
+</details>
+
+<details>
+<summary><strong>Technical Expectations</strong></summary>
+
+- [x] Clean Architecture (Domain / Application / Infrastructure / Api, dependency rule enforced
+      by project references) — see `LibraryManagementApi/ARCHITECTURE.md`
+- [x] Dependency Injection throughout (constructor injection, `AddApplicationServices()` /
+      `AddInfrastructureServices()` composition roots)
+- [x] SOLID Principles — see [Design Decisions & Assumptions](#design-decisions--assumptions)
+      for concrete examples per letter
+- [x] Design patterns — CQRS/MediatR, Factory (`Entity.Create()` static factories), Specification
+      (`OverdueLoanSpecification`); Repository and Strategy deliberately *not* used, with
+      reasoning documented below rather than added for their own sake
+- [x] FluentValidation — one validator per command that takes free-form input
+- [x] Centralized Exception Handling — single `GlobalExceptionHandler`, RFC 9457 `ProblemDetails`
+- [x] Logging — Serilog, two-stage bootstrap, request logging
+- [x] Secure Coding Practices — JWT + refresh rotation with reuse detection, ASP.NET Identity
+      password hashing, CORS locked to the frontend origin, per-IP rate limiting on auth
+      endpoints, security response headers, secrets via user-secrets/environment only
+- [x] Asynchronous Programming — `async`/`await` end to end, no sync-over-async
+- [x] Efficient Database Access — `AsNoTracking()` on every read-only query, paginated list
+      endpoints, projection-only DTO queries
+- [x] Unit Testing — 313 backend tests (35 Domain, 232 Application, 46 integration against real
+      Postgres via Testcontainers)
+
+</details>
+
+<details>
+<summary><strong>Deliverables</strong></summary>
+
+- [x] Source Code
+- [x] Git Repository
+- [x] `README.md` (this file)
+- [x] Database Migrations — 7 EF Core migrations, applied via `dotnet ef database update`
+- [x] Swagger/OpenAPI — interactive Scalar UI at `/scalar/v1`
+- [x] Unit Tests
+- [x] Setup Instructions — see [Quick Start](#quick-start)
+
+</details>
+
+<details>
+<summary><strong>Bonus (honest status, not all attempted)</strong></summary>
+
+- [x] CQRS
+- [x] Email Notifications — password-reset email via MailKit/Gmail SMTP
+- [ ] Domain Events
+- [ ] Optimistic Concurrency
+- [ ] API Versioning
+- [ ] Health Checks
+- [ ] Docker for the API itself (PostgreSQL is dockerized; the API is not)
+- [ ] Redis
+- [ ] Background Jobs
+- [ ] Excel/PDF Export
+- [ ] CI/CD Pipeline
+
+</details>
+
 ## Project Structure
 
 ```
@@ -151,6 +248,19 @@ committed file.
 
 ## Design Decisions & Assumptions
 
+- **SOLID — one concrete example per letter, from this codebase:**
+  - **S**RP: a command handler does exactly one use case (e.g. `BorrowBookCommandHandler` only
+    handles borrowing) rather than a `BookService` god-class with a dozen methods.
+  - **O**CP: FluentValidation validators and MediatR pipeline behaviors are added by *registering
+    a new class*, not by editing existing handler code — `AddValidatorsFromAssembly` /
+    `RegisterServicesFromAssembly` discover new handlers/validators automatically.
+  - **L**SP: any `IRequestHandler<TCommand, TResponse>` must be substitutable by MediatR's
+    dispatcher with no special-casing — enforced structurally by the interface, not by convention.
+  - **I**SP: `IApplicationDbContext` exposes only the `DbSet<T>`s Application actually needs, not
+    the full `DbContext` surface.
+  - **D**IP: Application depends on interfaces it defines itself (`IApplicationDbContext`,
+    `IIdentityService`); Infrastructure depends on Application to implement them — dependencies
+    point at the abstraction, never the concrete detail.
 - **Clean Architecture (Jason Taylor template)** over Onion/Vertical Slice: the assessment
   explicitly calls out MediatR/CQRS, which maps directly onto Clean's Application layer (one
   Command/Query + Handler per use case), and the four-project split makes the dependency rule
