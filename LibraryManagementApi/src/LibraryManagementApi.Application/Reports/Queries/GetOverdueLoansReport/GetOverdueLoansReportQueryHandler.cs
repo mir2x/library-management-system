@@ -1,6 +1,6 @@
 using LibraryManagementApi.Application.Common.Interfaces;
 using LibraryManagementApi.Application.Common.Models;
-using LibraryManagementApi.Domain.Enums;
+using LibraryManagementApi.Application.Loans;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,12 +13,13 @@ public class GetOverdueLoansReportQueryHandler(IApplicationDbContext context)
     {
         var now = DateTime.UtcNow;
 
+        var overdueLoans = context.Loans.AsNoTracking().Where(new OverdueLoanSpecification(now).ToExpression());
+
         var query =
-            from l in context.Loans.AsNoTracking()
+            from l in overdueLoans
             join member in context.Members.AsNoTracking() on l.MemberId equals member.Id
             join book in context.Books.AsNoTracking() on l.BookId equals book.Id
             join branch in context.Branches.AsNoTracking() on l.BranchId equals branch.Id
-            where l.Status == LoanStatus.Active && l.DueDateUtc < now
             select new { Loan = l, MemberName = member.FullName, BookTitle = book.Title, BranchName = branch.Name };
 
         if (request.BranchId is not null)

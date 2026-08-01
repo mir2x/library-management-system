@@ -12,8 +12,14 @@ public class GetLoansQueryHandler(IApplicationDbContext context) : IRequestHandl
     {
         var now = DateTime.UtcNow;
 
+        var loans = context.Loans.AsNoTracking();
+        if (request.OnlyOverdue == true)
+        {
+            loans = loans.Where(new OverdueLoanSpecification(now).ToExpression());
+        }
+
         var query =
-            from l in context.Loans.AsNoTracking()
+            from l in loans
             join member in context.Members.AsNoTracking() on l.MemberId equals member.Id
             join book in context.Books.AsNoTracking() on l.BookId equals book.Id
             join branch in context.Branches.AsNoTracking() on l.BranchId equals branch.Id
@@ -32,11 +38,6 @@ public class GetLoansQueryHandler(IApplicationDbContext context) : IRequestHandl
         if (request.BranchId is not null)
         {
             query = query.Where(x => x.Loan.BranchId == request.BranchId);
-        }
-
-        if (request.OnlyOverdue == true)
-        {
-            query = query.Where(x => x.Loan.Status == LoanStatus.Active && x.Loan.DueDateUtc < now);
         }
 
         var projected = query
