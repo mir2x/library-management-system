@@ -4,6 +4,7 @@ using LibraryManagementApi.Api.Middleware;
 using LibraryManagementApi.Application;
 using LibraryManagementApi.Infrastructure;
 using LibraryManagementApi.Infrastructure.Persistence;
+using Scalar.AspNetCore;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -51,6 +52,7 @@ using (var scope = app.Services.CreateScope())
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference(); // interactive API docs at /scalar/v1 — see README's "API Documentation" section
 }
 
 app.UseExceptionHandler();
