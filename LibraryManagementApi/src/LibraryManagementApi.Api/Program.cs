@@ -19,11 +19,25 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
+// Reuses ClientApp:BaseUrl (already the canonical "where the frontend lives" setting used for
+// password-reset links) rather than introducing a second place to configure the same value.
+var clientAppBaseUrl = builder.Configuration["ClientApp:BaseUrl"]
+    ?? throw new InvalidOperationException("ClientApp:BaseUrl configuration is missing.");
+builder.Services.AddCors(options => options.AddPolicy("Frontend", policy => policy
+    .WithOrigins(clientAppBaseUrl)
+    .AllowAnyHeader()
+    .AllowAnyMethod()));
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
     await DbInitializer.SeedRolesAsync(scope.ServiceProvider);
+
+    if (app.Environment.IsDevelopment())
+    {
+        await DbInitializer.SeedDefaultAdminAsync(scope.ServiceProvider, app.Configuration);
+    }
 }
 
 if (app.Environment.IsDevelopment())
@@ -34,6 +48,8 @@ if (app.Environment.IsDevelopment())
 app.UseExceptionHandler();
 app.UseHttpsRedirection();
 app.UseSerilogRequestLogging();
+
+app.UseCors("Frontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
