@@ -7,6 +7,8 @@ import { BookDetailPage } from '../features/books/BookDetailPage';
 import { MembersPage } from '../features/members/MembersPage';
 import { LoansPage } from '../features/loans/LoansPage';
 import { MyLoansPage } from '../features/loans/MyLoansPage';
+import { ReservationsPage } from '../features/reservations/ReservationsPage';
+import { MyReservationsPage } from '../features/reservations/MyReservationsPage';
 import { ComingSoonPage } from '../components/ComingSoonPage';
 import { ProtectedRoute } from './ProtectedRoute';
 import { AppShell } from './AppShell';
@@ -27,6 +29,7 @@ export const router = createBrowserRouter([
         children: [
           { path: '/', element: <DashboardPage /> },
           { path: '/my-loans', element: <MyLoansPage /> },
+          { path: '/my-reservations', element: <MyReservationsPage /> },
           {
             element: <ProtectedRoute roles={staffRoles} />,
             children: [
@@ -35,7 +38,7 @@ export const router = createBrowserRouter([
               { path: '/books/:id', element: <BookDetailPage /> },
               { path: '/members', element: <MembersPage /> },
               { path: '/loans', element: <LoansPage /> },
-              { path: '/reservations', element: <ComingSoonPage title="Reservation Queue" /> },
+              { path: '/reservations', element: <ReservationsPage /> },
               { path: '/reports', element: <ComingSoonPage title="Reports" /> },
             ],
           },

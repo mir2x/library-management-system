@@ -30,5 +30,6 @@ export const navItems: NavItem[] = [
   { label: 'Borrow & Return', path: '/loans', icon: IconArrowsExchange, roles: staff },
   { label: 'My Loans', path: '/my-loans', icon: IconArrowsExchange, roles: member },
   { label: 'Reservations', path: '/reservations', icon: IconBookmarks, roles: staff },
+  { label: 'My Reservations', path: '/my-reservations', icon: IconBookmarks, roles: member },
   { label: 'Reports', path: '/reports', icon: IconChartBar, roles: staff },
 ];
