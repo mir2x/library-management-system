@@ -12,10 +12,10 @@ public class GetLoanByIdQueryHandler(IApplicationDbContext context) : IRequestHa
         var now = DateTime.UtcNow;
 
         return (
-            from l in context.Loans
-            join member in context.Members on l.MemberId equals member.Id
-            join book in context.Books on l.BookId equals book.Id
-            join branch in context.Branches on l.BranchId equals branch.Id
+            from l in context.Loans.AsNoTracking()
+            join member in context.Members.AsNoTracking() on l.MemberId equals member.Id
+            join book in context.Books.AsNoTracking() on l.BookId equals book.Id
+            join branch in context.Branches.AsNoTracking() on l.BranchId equals branch.Id
             where l.Id == request.Id
             select new LoanDto(
                 l.Id, l.MemberId, member.FullName, l.BookId, book.Title, l.BranchId, branch.Name,

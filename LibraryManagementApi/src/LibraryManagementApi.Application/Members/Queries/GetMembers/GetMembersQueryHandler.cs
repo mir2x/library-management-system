@@ -2,6 +2,7 @@ using LibraryManagementApi.Application.Common.Interfaces;
 using LibraryManagementApi.Application.Common.Models;
 using LibraryManagementApi.Domain.Enums;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace LibraryManagementApi.Application.Members.Queries.GetMembers;
 
@@ -10,8 +11,8 @@ public class GetMembersQueryHandler(IApplicationDbContext context) : IRequestHan
     public Task<PaginatedList<MemberDto>> Handle(GetMembersQuery request, CancellationToken cancellationToken)
     {
         var query =
-            from m in context.Members
-            join branch in context.Branches on m.HomeBranchId equals branch.Id
+            from m in context.Members.AsNoTracking()
+            join branch in context.Branches.AsNoTracking() on m.HomeBranchId equals branch.Id
             where m.Status != MembershipStatus.Deactivated
             select new { Member = m, BranchName = branch.Name };
 

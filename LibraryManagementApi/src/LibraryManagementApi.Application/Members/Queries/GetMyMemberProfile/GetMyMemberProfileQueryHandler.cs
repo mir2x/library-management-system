@@ -9,8 +9,8 @@ public class GetMyMemberProfileQueryHandler(IApplicationDbContext context) : IRe
     public Task<MemberDto?> Handle(GetMyMemberProfileQuery request, CancellationToken cancellationToken)
     {
         return (
-            from m in context.Members
-            join branch in context.Branches on m.HomeBranchId equals branch.Id
+            from m in context.Members.AsNoTracking()
+            join branch in context.Branches.AsNoTracking() on m.HomeBranchId equals branch.Id
             where m.UserId == request.UserId
             select new MemberDto(m.Id, m.MembershipNumber, m.FullName, m.Email, m.Phone, m.Address, m.HomeBranchId, branch.Name, m.Status, m.JoinDateUtc))
             .SingleOrDefaultAsync(cancellationToken);

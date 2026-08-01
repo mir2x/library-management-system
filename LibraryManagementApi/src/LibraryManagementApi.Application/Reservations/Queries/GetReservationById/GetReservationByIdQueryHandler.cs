@@ -10,10 +10,10 @@ public class GetReservationByIdQueryHandler(IApplicationDbContext context) : IRe
     public async Task<ReservationDto?> Handle(GetReservationByIdQuery request, CancellationToken cancellationToken)
     {
         var result = await (
-            from r in context.Reservations
-            join member in context.Members on r.MemberId equals member.Id
-            join book in context.Books on r.BookId equals book.Id
-            join branch in context.Branches on r.BranchId equals branch.Id
+            from r in context.Reservations.AsNoTracking()
+            join member in context.Members.AsNoTracking() on r.MemberId equals member.Id
+            join book in context.Books.AsNoTracking() on r.BookId equals book.Id
+            join branch in context.Branches.AsNoTracking() on r.BranchId equals branch.Id
             where r.Id == request.Id
             select new { Reservation = r, MemberName = member.FullName, BookTitle = book.Title, BranchName = branch.Name })
             .SingleOrDefaultAsync(cancellationToken);

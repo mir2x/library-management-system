@@ -10,7 +10,7 @@ public class GetMyLoansQueryHandler(IApplicationDbContext context) : IRequestHan
 {
     public async Task<PaginatedList<LoanDto>> Handle(GetMyLoansQuery request, CancellationToken cancellationToken)
     {
-        var member = await context.Members.SingleOrDefaultAsync(m => m.UserId == request.UserId, cancellationToken);
+        var member = await context.Members.AsNoTracking().SingleOrDefaultAsync(m => m.UserId == request.UserId, cancellationToken);
         if (member is null)
         {
             return new PaginatedList<LoanDto>([], 0, request.PageNumber, request.PageSize);
@@ -19,9 +19,9 @@ public class GetMyLoansQueryHandler(IApplicationDbContext context) : IRequestHan
         var now = DateTime.UtcNow;
 
         var projected =
-            from l in context.Loans
-            join book in context.Books on l.BookId equals book.Id
-            join branch in context.Branches on l.BranchId equals branch.Id
+            from l in context.Loans.AsNoTracking()
+            join book in context.Books.AsNoTracking() on l.BookId equals book.Id
+            join branch in context.Branches.AsNoTracking() on l.BranchId equals branch.Id
             where l.MemberId == member.Id
             orderby l.BorrowedAtUtc descending
             select new LoanDto(

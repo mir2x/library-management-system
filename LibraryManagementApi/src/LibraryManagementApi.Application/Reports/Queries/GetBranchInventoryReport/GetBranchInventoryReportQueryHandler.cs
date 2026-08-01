@@ -9,7 +9,7 @@ public class GetBranchInventoryReportQueryHandler(IApplicationDbContext context)
 {
     public async Task<List<BranchInventorySummaryDto>> Handle(GetBranchInventoryReportQuery request, CancellationToken cancellationToken)
     {
-        var branches = context.Branches.Where(b => b.IsActive);
+        var branches = context.Branches.AsNoTracking().Where(b => b.IsActive);
 
         if (request.BranchId is not null)
         {

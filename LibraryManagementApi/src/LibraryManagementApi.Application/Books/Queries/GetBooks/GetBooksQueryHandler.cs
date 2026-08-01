@@ -1,6 +1,7 @@
 using LibraryManagementApi.Application.Common.Interfaces;
 using LibraryManagementApi.Application.Common.Models;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace LibraryManagementApi.Application.Books.Queries.GetBooks;
 
@@ -8,7 +9,7 @@ public class GetBooksQueryHandler(IApplicationDbContext context) : IRequestHandl
 {
     public Task<PaginatedList<BookDto>> Handle(GetBooksQuery request, CancellationToken cancellationToken)
     {
-        var query = context.Books.Where(b => b.IsActive);
+        var query = context.Books.AsNoTracking().Where(b => b.IsActive);
 
         if (!string.IsNullOrWhiteSpace(request.Search))
         {

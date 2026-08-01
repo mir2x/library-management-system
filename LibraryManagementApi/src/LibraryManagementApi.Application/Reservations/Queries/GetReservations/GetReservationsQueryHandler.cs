@@ -11,10 +11,10 @@ public class GetReservationsQueryHandler(IApplicationDbContext context) : IReque
     public async Task<PaginatedList<ReservationDto>> Handle(GetReservationsQuery request, CancellationToken cancellationToken)
     {
         var query =
-            from r in context.Reservations
-            join member in context.Members on r.MemberId equals member.Id
-            join book in context.Books on r.BookId equals book.Id
-            join branch in context.Branches on r.BranchId equals branch.Id
+            from r in context.Reservations.AsNoTracking()
+            join member in context.Members.AsNoTracking() on r.MemberId equals member.Id
+            join book in context.Books.AsNoTracking() on r.BookId equals book.Id
+            join branch in context.Branches.AsNoTracking() on r.BranchId equals branch.Id
             select new { Reservation = r, MemberName = member.FullName, BookTitle = book.Title, BranchName = branch.Name };
 
         if (request.MemberId is not null)

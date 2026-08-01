@@ -1,6 +1,7 @@
 using LibraryManagementApi.Application.Common.Interfaces;
 using LibraryManagementApi.Application.Common.Models;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace LibraryManagementApi.Application.Branches.Queries.GetBranches;
 
@@ -8,7 +9,7 @@ public class GetBranchesQueryHandler(IApplicationDbContext context) : IRequestHa
 {
     public Task<PaginatedList<BranchDto>> Handle(GetBranchesQuery request, CancellationToken cancellationToken)
     {
-        var query = context.Branches.Where(b => b.IsActive);
+        var query = context.Branches.AsNoTracking().Where(b => b.IsActive);
 
         if (!string.IsNullOrWhiteSpace(request.Search))
         {

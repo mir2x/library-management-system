@@ -9,7 +9,7 @@ public class GetMostBorrowedBooksReportQueryHandler(IApplicationDbContext contex
 {
     public async Task<List<MostBorrowedBookDto>> Handle(GetMostBorrowedBooksReportQuery request, CancellationToken cancellationToken)
     {
-        var loans = context.Loans.AsQueryable();
+        var loans = context.Loans.AsNoTracking();
 
         if (request.BranchId is not null)
         {
@@ -33,7 +33,7 @@ public class GetMostBorrowedBooksReportQueryHandler(IApplicationDbContext contex
 
         var query =
             from c in counted
-            join book in context.Books on c.BookId equals book.Id
+            join book in context.Books.AsNoTracking() on c.BookId equals book.Id
             orderby c.BorrowCount descending
             select new MostBorrowedBookDto(book.Id, book.Title, book.Author, c.BorrowCount);
 

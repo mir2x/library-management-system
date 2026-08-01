@@ -10,16 +10,16 @@ public class GetMyReservationsQueryHandler(IApplicationDbContext context) : IReq
 {
     public async Task<PaginatedList<ReservationDto>> Handle(GetMyReservationsQuery request, CancellationToken cancellationToken)
     {
-        var member = await context.Members.SingleOrDefaultAsync(m => m.UserId == request.UserId, cancellationToken);
+        var member = await context.Members.AsNoTracking().SingleOrDefaultAsync(m => m.UserId == request.UserId, cancellationToken);
         if (member is null)
         {
             return new PaginatedList<ReservationDto>([], 0, request.PageNumber, request.PageSize);
         }
 
         var query =
-            from r in context.Reservations
-            join book in context.Books on r.BookId equals book.Id
-            join branch in context.Branches on r.BranchId equals branch.Id
+            from r in context.Reservations.AsNoTracking()
+            join book in context.Books.AsNoTracking() on r.BookId equals book.Id
+            join branch in context.Branches.AsNoTracking() on r.BranchId equals branch.Id
             where r.MemberId == member.Id
             orderby r.ReservedAtUtc
             select new { Reservation = r, BookTitle = book.Title, BranchName = branch.Name };

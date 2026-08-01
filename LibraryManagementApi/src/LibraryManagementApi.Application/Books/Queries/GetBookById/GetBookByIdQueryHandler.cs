@@ -8,15 +8,15 @@ public class GetBookByIdQueryHandler(IApplicationDbContext context) : IRequestHa
 {
     public async Task<BookDetailDto?> Handle(GetBookByIdQuery request, CancellationToken cancellationToken)
     {
-        var book = await context.Books.SingleOrDefaultAsync(b => b.Id == request.Id, cancellationToken);
+        var book = await context.Books.AsNoTracking().SingleOrDefaultAsync(b => b.Id == request.Id, cancellationToken);
         if (book is null)
         {
             return null;
         }
 
         var inventory = await (
-            from i in context.BookInventories
-            join branch in context.Branches on i.BranchId equals branch.Id
+            from i in context.BookInventories.AsNoTracking()
+            join branch in context.Branches.AsNoTracking() on i.BranchId equals branch.Id
             where i.BookId == book.Id
             orderby branch.Name
             select new BookInventoryDto(branch.Id, branch.Name, i.TotalCopies, i.AvailableCopies))

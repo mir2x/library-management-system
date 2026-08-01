@@ -11,6 +11,7 @@ public class GetReservationQueueSummaryReportQueryHandler(IApplicationDbContext 
     public async Task<List<ReservationQueueSummaryDto>> Handle(GetReservationQueueSummaryReportQuery request, CancellationToken cancellationToken)
     {
         var reservations = context.Reservations
+            .AsNoTracking()
             .Where(r => r.Status == ReservationStatus.Pending || r.Status == ReservationStatus.Ready);
 
         if (request.BranchId is not null)
@@ -20,8 +21,8 @@ public class GetReservationQueueSummaryReportQueryHandler(IApplicationDbContext 
 
         var query =
             from r in reservations
-            join book in context.Books on r.BookId equals book.Id
-            join branch in context.Branches on r.BranchId equals branch.Id
+            join book in context.Books.AsNoTracking() on r.BookId equals book.Id
+            join branch in context.Branches.AsNoTracking() on r.BranchId equals branch.Id
             select new { r.BookId, BookTitle = book.Title, r.BranchId, BranchName = branch.Name, r.Status, r.ReservedAtUtc };
 
         var rows = await query.ToListAsync(cancellationToken);

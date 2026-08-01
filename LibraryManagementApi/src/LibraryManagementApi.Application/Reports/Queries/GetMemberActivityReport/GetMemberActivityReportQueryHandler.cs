@@ -2,6 +2,7 @@ using LibraryManagementApi.Application.Common.Interfaces;
 using LibraryManagementApi.Application.Common.Models;
 using LibraryManagementApi.Domain.Enums;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace LibraryManagementApi.Application.Reports.Queries.GetMemberActivityReport;
 
@@ -12,7 +13,7 @@ public class GetMemberActivityReportQueryHandler(IApplicationDbContext context)
     {
         var now = DateTime.UtcNow;
 
-        var members = context.Members.AsQueryable();
+        var members = context.Members.AsNoTracking();
 
         if (request.BranchId is not null)
         {
