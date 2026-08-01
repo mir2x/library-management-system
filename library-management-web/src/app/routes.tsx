@@ -1,7 +1,12 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { LoginPage } from '../features/auth/LoginPage';
+import { DashboardPage } from '../features/dashboard/DashboardPage';
+import { ComingSoonPage } from '../components/ComingSoonPage';
 import { ProtectedRoute } from './ProtectedRoute';
-import { HomePlaceholder } from './HomePlaceholder';
+import { AppShell } from './AppShell';
+import { Roles } from '../lib/roles';
+
+const staffRoles = [Roles.Admin, Roles.Librarian];
 
 export const router = createBrowserRouter([
   {
@@ -12,8 +17,21 @@ export const router = createBrowserRouter([
     element: <ProtectedRoute />,
     children: [
       {
-        path: '/',
-        element: <HomePlaceholder />,
+        element: <AppShell />,
+        children: [
+          { path: '/', element: <DashboardPage /> },
+          {
+            element: <ProtectedRoute roles={staffRoles} />,
+            children: [
+              { path: '/branches', element: <ComingSoonPage title="Branch Management" /> },
+              { path: '/books', element: <ComingSoonPage title="Book Management" /> },
+              { path: '/members', element: <ComingSoonPage title="Member Management" /> },
+              { path: '/loans', element: <ComingSoonPage title="Borrow & Return" /> },
+              { path: '/reservations', element: <ComingSoonPage title="Reservation Queue" /> },
+              { path: '/reports', element: <ComingSoonPage title="Reports" /> },
+            ],
+          },
+        ],
       },
     ],
   },
