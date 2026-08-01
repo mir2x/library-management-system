@@ -35,7 +35,7 @@ public class ReservationEndpointsTests(IntegrationTestWebApplicationFactory fact
             "/api/reservations", new CreateReservationCommand(waitingMember.Id, book.Id, branch.Id));
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var reservation = await response.Content.ReadFromJsonAsync<ReservationDto>();
+        var reservation = await response.Content.ReadFromJsonWithEnumsAsync<ReservationDto>();
         Assert.Equal(ReservationStatus.Pending, reservation!.Status);
     }
 
@@ -48,14 +48,14 @@ public class ReservationEndpointsTests(IntegrationTestWebApplicationFactory fact
         var (_, waitingMember) = await RegisterMemberWithProfileAsync(branch.Id);
         var reservationResponse = await librarian.PostAsJsonAsync(
             "/api/reservations", new CreateReservationCommand(waitingMember.Id, book.Id, branch.Id));
-        var reservation = await reservationResponse.Content.ReadFromJsonAsync<ReservationDto>();
+        var reservation = await reservationResponse.Content.ReadFromJsonWithEnumsAsync<ReservationDto>();
 
-        var loansPage = await librarian.GetFromJsonAsync<PagedResponse<LoanDto>>($"/api/loans?MemberId={borrower.Id}");
+        var loansPage = await librarian.GetFromJsonWithEnumsAsync<PagedResponse<LoanDto>>($"/api/loans?MemberId={borrower.Id}");
         var loan = loansPage!.Items.Single();
         var returnResponse = await librarian.PostAsync($"/api/loans/{loan.Id}/return", null);
         Assert.Equal(HttpStatusCode.NoContent, returnResponse.StatusCode);
 
-        var afterReturn = await librarian.GetFromJsonAsync<ReservationDto>($"/api/reservations/{reservation!.Id}");
+        var afterReturn = await librarian.GetFromJsonWithEnumsAsync<ReservationDto>($"/api/reservations/{reservation!.Id}");
         Assert.Equal(ReservationStatus.Ready, afterReturn!.Status);
 
         var bookDetail = await librarian.GetFromJsonAsync<Application.Books.BookDetailDto>($"/api/books/{book.Id}");
@@ -71,15 +71,15 @@ public class ReservationEndpointsTests(IntegrationTestWebApplicationFactory fact
         var (_, waitingMember) = await RegisterMemberWithProfileAsync(branch.Id);
         var reservationResponse = await librarian.PostAsJsonAsync(
             "/api/reservations", new CreateReservationCommand(waitingMember.Id, book.Id, branch.Id));
-        var reservation = await reservationResponse.Content.ReadFromJsonAsync<ReservationDto>();
+        var reservation = await reservationResponse.Content.ReadFromJsonWithEnumsAsync<ReservationDto>();
 
-        var loansPage = await librarian.GetFromJsonAsync<PagedResponse<LoanDto>>($"/api/loans?MemberId={borrower.Id}");
+        var loansPage = await librarian.GetFromJsonWithEnumsAsync<PagedResponse<LoanDto>>($"/api/loans?MemberId={borrower.Id}");
         await librarian.PostAsync($"/api/loans/{loansPage!.Items.Single().Id}/return", null);
 
         var fulfillResponse = await librarian.PostAsync($"/api/reservations/{reservation!.Id}/fulfill", null);
 
         Assert.Equal(HttpStatusCode.OK, fulfillResponse.StatusCode);
-        var newLoan = await fulfillResponse.Content.ReadFromJsonAsync<LoanDto>();
+        var newLoan = await fulfillResponse.Content.ReadFromJsonWithEnumsAsync<LoanDto>();
         Assert.Equal(waitingMember.Id, newLoan!.MemberId);
         Assert.Equal(book.Id, newLoan.BookId);
     }
@@ -108,7 +108,7 @@ public class ReservationEndpointsTests(IntegrationTestWebApplicationFactory fact
         var (auth, waitingMember) = await RegisterMemberWithProfileAsync(branch.Id);
         var reservationResponse = await librarian.PostAsJsonAsync(
             "/api/reservations", new CreateReservationCommand(waitingMember.Id, book.Id, branch.Id));
-        var reservation = await reservationResponse.Content.ReadFromJsonAsync<ReservationDto>();
+        var reservation = await reservationResponse.Content.ReadFromJsonWithEnumsAsync<ReservationDto>();
 
         var client = CreateClient();
         client.DefaultRequestHeaders.Authorization = new("Bearer", auth.AccessToken);
@@ -126,7 +126,7 @@ public class ReservationEndpointsTests(IntegrationTestWebApplicationFactory fact
         var (_, waitingMember) = await RegisterMemberWithProfileAsync(branch.Id);
         var reservationResponse = await librarian.PostAsJsonAsync(
             "/api/reservations", new CreateReservationCommand(waitingMember.Id, book.Id, branch.Id));
-        var reservation = await reservationResponse.Content.ReadFromJsonAsync<ReservationDto>();
+        var reservation = await reservationResponse.Content.ReadFromJsonWithEnumsAsync<ReservationDto>();
 
         var (otherAuth, _) = await RegisterMemberWithProfileAsync(branch.Id);
         var client = CreateClient();

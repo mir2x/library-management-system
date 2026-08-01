@@ -22,7 +22,7 @@ public class MemberEndpointsTests(IntegrationTestWebApplicationFactory factory) 
         var response = await client.GetAsync("/api/members/me");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var profile = await response.Content.ReadFromJsonAsync<MemberDto>();
+        var profile = await response.Content.ReadFromJsonWithEnumsAsync<MemberDto>();
         Assert.Equal(email, profile!.Email);
         Assert.Equal(branch.Id, profile.HomeBranchId);
         Assert.StartsWith("MEM-", profile.MembershipNumber);
@@ -53,7 +53,7 @@ public class MemberEndpointsTests(IntegrationTestWebApplicationFactory factory) 
         var response = await librarian.GetAsync("/api/members?PageSize=50");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var page = await response.Content.ReadFromJsonAsync<PagedResponse<MemberDto>>();
+        var page = await response.Content.ReadFromJsonWithEnumsAsync<PagedResponse<MemberDto>>();
         Assert.NotEmpty(page!.Items);
     }
 
@@ -70,13 +70,13 @@ public class MemberEndpointsTests(IntegrationTestWebApplicationFactory factory) 
         var suspendResponse = await admin.PostAsync($"/api/members/{memberId}/suspend", null);
         Assert.Equal(HttpStatusCode.NoContent, suspendResponse.StatusCode);
 
-        var afterSuspend = await admin.GetFromJsonAsync<MemberDto>($"/api/members/{memberId}");
+        var afterSuspend = await admin.GetFromJsonWithEnumsAsync<MemberDto>($"/api/members/{memberId}");
         Assert.Equal(MembershipStatus.Suspended, afterSuspend!.Status);
 
         var reactivateResponse = await admin.PostAsync($"/api/members/{memberId}/reactivate", null);
         Assert.Equal(HttpStatusCode.NoContent, reactivateResponse.StatusCode);
 
-        var afterReactivate = await admin.GetFromJsonAsync<MemberDto>($"/api/members/{memberId}");
+        var afterReactivate = await admin.GetFromJsonWithEnumsAsync<MemberDto>($"/api/members/{memberId}");
         Assert.Equal(MembershipStatus.Active, afterReactivate!.Status);
     }
 
@@ -85,6 +85,6 @@ public class MemberEndpointsTests(IntegrationTestWebApplicationFactory factory) 
         var client = CreateClient();
         client.DefaultRequestHeaders.Authorization = new("Bearer", accessToken);
 
-        return (await client.GetFromJsonAsync<MemberDto>("/api/members/me"))!;
+        return (await client.GetFromJsonWithEnumsAsync<MemberDto>("/api/members/me"))!;
     }
 }

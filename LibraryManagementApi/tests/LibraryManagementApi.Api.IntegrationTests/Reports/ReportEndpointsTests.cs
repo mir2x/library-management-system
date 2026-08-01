@@ -24,7 +24,7 @@ public class ReportEndpointsTests(IntegrationTestWebApplicationFactory factory) 
         var (branch, book) = await CreateBookWithInventoryAsync(admin, totalCopies: 1);
         var (_, member) = await RegisterMemberWithProfileAsync(branch.Id);
         var borrowResponse = await librarian.PostAsJsonAsync("/api/loans", new BorrowBookCommand(member.Id, book.Id, branch.Id));
-        var loan = await borrowResponse.Content.ReadFromJsonAsync<Application.Loans.LoanDto>();
+        var loan = await borrowResponse.Content.ReadFromJsonWithEnumsAsync<Application.Loans.LoanDto>();
 
         await ExecuteDbContextAsync(async context =>
         {

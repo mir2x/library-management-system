@@ -21,7 +21,7 @@ public class LoanEndpointsTests(IntegrationTestWebApplicationFactory factory) : 
         var response = await librarian.PostAsJsonAsync("/api/loans", new BorrowBookCommand(member.Id, book.Id, branch.Id));
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var loan = await response.Content.ReadFromJsonAsync<LoanDto>();
+        var loan = await response.Content.ReadFromJsonWithEnumsAsync<LoanDto>();
         Assert.Equal(LoanStatus.Active, loan!.Status);
 
         var bookDetail = await librarian.GetFromJsonAsync<Application.Books.BookDetailDto>($"/api/books/{book.Id}");
@@ -89,12 +89,12 @@ public class LoanEndpointsTests(IntegrationTestWebApplicationFactory factory) : 
         var librarian = await CreateLibrarianClientAsync();
 
         var borrowResponse = await librarian.PostAsJsonAsync("/api/loans", new BorrowBookCommand(member.Id, book.Id, branch.Id));
-        var loan = await borrowResponse.Content.ReadFromJsonAsync<LoanDto>();
+        var loan = await borrowResponse.Content.ReadFromJsonWithEnumsAsync<LoanDto>();
 
         var returnResponse = await librarian.PostAsync($"/api/loans/{loan!.Id}/return", null);
         Assert.Equal(HttpStatusCode.NoContent, returnResponse.StatusCode);
 
-        var afterReturn = await librarian.GetFromJsonAsync<LoanDto>($"/api/loans/{loan.Id}");
+        var afterReturn = await librarian.GetFromJsonWithEnumsAsync<LoanDto>($"/api/loans/{loan.Id}");
         Assert.Equal(LoanStatus.Returned, afterReturn!.Status);
 
         var bookDetail = await librarian.GetFromJsonAsync<Application.Books.BookDetailDto>($"/api/books/{book.Id}");
@@ -115,7 +115,7 @@ public class LoanEndpointsTests(IntegrationTestWebApplicationFactory factory) : 
         var response = await client.GetAsync("/api/loans/me");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var page = await response.Content.ReadFromJsonAsync<PagedResponse<LoanDto>>();
+        var page = await response.Content.ReadFromJsonWithEnumsAsync<PagedResponse<LoanDto>>();
         Assert.Single(page!.Items);
         Assert.Equal(book.Title, page.Items[0].BookTitle);
     }

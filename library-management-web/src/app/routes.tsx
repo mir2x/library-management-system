@@ -4,6 +4,7 @@ import { DashboardPage } from '../features/dashboard/DashboardPage';
 import { BranchesPage } from '../features/branches/BranchesPage';
 import { BooksPage } from '../features/books/BooksPage';
 import { BookDetailPage } from '../features/books/BookDetailPage';
+import { MembersPage } from '../features/members/MembersPage';
 import { ComingSoonPage } from '../components/ComingSoonPage';
 import { ProtectedRoute } from './ProtectedRoute';
 import { AppShell } from './AppShell';
@@ -29,7 +30,7 @@ export const router = createBrowserRouter([
               { path: '/branches', element: <BranchesPage /> },
               { path: '/books', element: <BooksPage /> },
               { path: '/books/:id', element: <BookDetailPage /> },
-              { path: '/members', element: <ComingSoonPage title="Member Management" /> },
+              { path: '/members', element: <MembersPage /> },
               { path: '/loans', element: <ComingSoonPage title="Borrow & Return" /> },
               { path: '/reservations', element: <ComingSoonPage title="Reservation Queue" /> },
               { path: '/reports', element: <ComingSoonPage title="Reports" /> },

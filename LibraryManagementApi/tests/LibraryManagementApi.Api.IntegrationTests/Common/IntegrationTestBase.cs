@@ -109,7 +109,7 @@ public abstract class IntegrationTestBase(IntegrationTestWebApplicationFactory f
 
         var client = CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
-        var profile = await client.GetFromJsonAsync<MemberDto>("/api/members/me");
+        var profile = await client.GetFromJsonWithEnumsAsync<MemberDto>("/api/members/me");
 
         return (auth, profile!);
     }

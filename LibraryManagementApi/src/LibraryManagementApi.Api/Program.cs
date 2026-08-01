@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using LibraryManagementApi.Api.Endpoints;
 using LibraryManagementApi.Api.Middleware;
 using LibraryManagementApi.Application;
@@ -12,6 +13,13 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
     .ReadFrom.Services(services)
     .Enrich.FromLogContext()
     .WriteTo.Console());
+
+// Without this, System.Text.Json's default enum handling serializes MembershipStatus,
+// LoanStatus, and ReservationStatus as raw integers in every DTO that carries one — invisible
+// from C#-to-C# testing (both sides agree on the numeric value), but a real API consumer
+// (the frontend) has no way to know 0 means "Active" without this.
+builder.Services.ConfigureHttpJsonOptions(options =>
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 builder.Services.AddOpenApi();
 builder.Services.AddApplicationServices();
