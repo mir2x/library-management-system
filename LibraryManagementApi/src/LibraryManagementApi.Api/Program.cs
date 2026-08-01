@@ -1,9 +1,11 @@
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 using LibraryManagementApi.Api.Endpoints;
 using LibraryManagementApi.Api.Middleware;
 using LibraryManagementApi.Application;
 using LibraryManagementApi.Infrastructure;
 using LibraryManagementApi.Infrastructure.Persistence;
+using Microsoft.AspNetCore.RateLimiting;
 using Scalar.AspNetCore;
 using Serilog;
 
@@ -37,6 +39,28 @@ builder.Services.AddCors(options => options.AddPolicy("Frontend", policy => poli
     .AllowAnyHeader()
     .AllowAnyMethod()));
 
+// Auth endpoints (login, register, forgot-password) are the classic brute-force/credential-
+// stuffing/enumeration targets — a per-client-IP window limits how fast an attacker can try
+// passwords or probe for registered emails without affecting normal usage. Configurable rather
+// than hardcoded specifically so appsettings.Testing.json can raise the ceiling — the
+// integration test suite's HttpClient runs entirely through WebApplicationFactory's in-memory
+// TestServer, where every request shares one connection/partition key, so the ~100 auth calls
+// across the full suite would otherwise trip a production-strength limit within seconds.
+var authRateLimit = builder.Configuration.GetSection("RateLimiting:Auth").Get<RateLimitOptions>()
+    ?? new RateLimitOptions();
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("auth", httpContext => RateLimitPartition.GetFixedWindowLimiter(
+        partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+        factory: _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = authRateLimit.PermitLimit,
+            Window = TimeSpan.FromSeconds(authRateLimit.WindowSeconds),
+            QueueLimit = 0,
+        }));
+});
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -59,7 +83,17 @@ app.UseExceptionHandler();
 app.UseHttpsRedirection();
 app.UseSerilogRequestLogging();
 
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+    context.Response.Headers.Append("X-Frame-Options", "DENY");
+    context.Response.Headers.Append("Referrer-Policy", "no-referrer");
+    await next();
+});
+
 app.UseCors("Frontend");
+
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -76,4 +110,11 @@ app.Run();
 
 public partial class Program
 {
+}
+
+public class RateLimitOptions
+{
+    public int PermitLimit { get; set; } = 10;
+
+    public int WindowSeconds { get; set; } = 60;
 }

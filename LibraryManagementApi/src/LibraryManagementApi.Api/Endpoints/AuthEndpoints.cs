@@ -9,6 +9,7 @@ using LibraryManagementApi.Application.Auth.Commands.ResetPassword;
 using LibraryManagementApi.Application.Auth.Queries.GetCurrentUser;
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace LibraryManagementApi.Api.Endpoints;
 
@@ -16,7 +17,7 @@ public static class AuthEndpoints
 {
     public static IEndpointRouteBuilder MapAuthEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/auth").WithTags("Auth");
+        var group = app.MapGroup("/api/auth").WithTags("Auth").RequireRateLimiting("auth");
 
         group.MapPost("/register", RegisterAsync)
             .WithName("Register")
