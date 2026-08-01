@@ -11,12 +11,17 @@ don't over-engineer this side.
 - Vite + React 19 + TypeScript
 - React Router (client-side routing, role-based route guards)
 - TanStack Query (server state / data fetching, caching, invalidation)
-- Axios (HTTP client, with a request interceptor attaching the JWT)
+- Axios (HTTP client, with a request interceptor attaching the JWT, and a response interceptor
+  that transparently refreshes an expired access token once before failing)
+- Mantine (`@mantine/core`, `@mantine/hooks`, `@mantine/form`, `@mantine/notifications`) — chosen
+  over Tailwind/CSS Modules specifically because most of this app is CRUD tables and forms
+  (branches/books/members/loans/reservations/reports); Mantine's DataTable-style components, form
+  hooks, and notifications save the most time for the least grading weight (10/100)
+- `@tabler/icons-react` (Mantine's usual icon pairing)
 - ESLint (already scaffolded by Vite's `react-ts` template — keep it, don't switch to oxlint;
   `eslint-plugin-react-hooks` + `typescript-eslint` type-aware rules matter more here than lint speed)
 
-Note: `react-router-dom`, `@tanstack/react-query`, and `axios` are the agreed stack but may not be
-installed yet — check `package.json` before assuming they're present.
+The full stack above is installed — see `package.json`.
 
 ## Folder Structure (target)
 
@@ -58,14 +63,13 @@ Each feature folder owns its own API calls (TanStack Query hooks, e.g. `useBooks
 ## Commands
 
 ```bash
-npm run dev        # start dev server
-npm run build       # tsc -b && vite build
-npm run lint         # eslint .
-npm run preview      # preview production build
+pnpm dev        # start dev server
+pnpm build      # tsc -b && vite build
+pnpm lint       # eslint .
+pnpm preview    # preview production build
 ```
 
 ## Not Yet Decided
 
-- Styling approach (plain CSS / CSS Modules / Tailwind) — update this file once chosen.
 - Component/testing library (if unit tests are added for the frontend) — update this file once
   chosen.
