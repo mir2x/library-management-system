@@ -1,6 +1,9 @@
+import { useEffect } from 'react';
 import {
+  ActionIcon,
   AppShell as MantineAppShell,
   Avatar,
+  Box,
   Burger,
   Button,
   Group,
@@ -8,15 +11,23 @@ import {
   Text,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { IconLogout } from '@tabler/icons-react';
 import { NavLink as RouterNavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../features/auth/useAuth';
 import { navItems } from './navigation';
 
 export function AppShell() {
-  const [opened, { toggle }] = useDisclosure();
+  const [opened, { toggle, close }] = useDisclosure();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // The mobile drawer has no other way to close itself when a nav link is tapped — without
+  // this it stays open on top of the page you just navigated to.
+  useEffect(() => {
+    close();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
 
   const visibleNavItems = navItems.filter(
     (item) => !item.roles || item.roles.some((role) => user?.roles.includes(role)),
@@ -39,21 +50,30 @@ export function AppShell() {
             <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
             <Text fw={700}>Library Management System</Text>
           </Group>
-          <Group>
-            <div style={{ textAlign: 'right' }}>
+          <Group gap="sm" wrap="nowrap">
+            <Box ta="right" visibleFrom="xs">
               <Text size="sm" fw={500}>
                 {user?.fullName}
               </Text>
               <Text size="xs" c="dimmed">
                 {user?.roles.join(', ')}
               </Text>
-            </div>
+            </Box>
             <Avatar radius="xl" color="blue">
               {user?.fullName.charAt(0)}
             </Avatar>
-            <Button variant="subtle" color="red" onClick={() => void handleLogout()}>
+            <Button variant="subtle" color="red" onClick={() => void handleLogout()} visibleFrom="xs">
               Sign out
             </Button>
+            <ActionIcon
+              variant="subtle"
+              color="red"
+              onClick={() => void handleLogout()}
+              hiddenFrom="xs"
+              aria-label="Sign out"
+            >
+              <IconLogout size={18} />
+            </ActionIcon>
           </Group>
         </Group>
       </MantineAppShell.Header>
