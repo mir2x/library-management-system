@@ -36,7 +36,7 @@ using (var scope = app.Services.CreateScope())
 
     if (app.Environment.IsDevelopment())
     {
-        await DbInitializer.SeedDefaultAdminAsync(scope.ServiceProvider, app.Configuration);
+        await DbInitializer.SeedDevAccountsAsync(scope.ServiceProvider, app.Configuration);
     }
 }
 
