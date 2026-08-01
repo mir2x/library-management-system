@@ -1,6 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { LoginPage } from '../features/auth/LoginPage';
 import { DashboardPage } from '../features/dashboard/DashboardPage';
+import { BranchesPage } from '../features/branches/BranchesPage';
 import { ComingSoonPage } from '../components/ComingSoonPage';
 import { ProtectedRoute } from './ProtectedRoute';
 import { AppShell } from './AppShell';
@@ -23,7 +24,7 @@ export const router = createBrowserRouter([
           {
             element: <ProtectedRoute roles={staffRoles} />,
             children: [
-              { path: '/branches', element: <ComingSoonPage title="Branch Management" /> },
+              { path: '/branches', element: <BranchesPage /> },
               { path: '/books', element: <ComingSoonPage title="Book Management" /> },
               { path: '/members', element: <ComingSoonPage title="Member Management" /> },
               { path: '/loans', element: <ComingSoonPage title="Borrow & Return" /> },
