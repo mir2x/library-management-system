@@ -1,10 +1,20 @@
 import { createBrowserRouter } from 'react-router-dom';
+import { LoginPage } from '../features/auth/LoginPage';
+import { ProtectedRoute } from './ProtectedRoute';
+import { HomePlaceholder } from './HomePlaceholder';
 
 export const router = createBrowserRouter([
   {
-    path: '/',
-    // Placeholder root route — replaced by the Auth module with the real login page and
-    // role-guarded route tree.
-    element: <div style={{ padding: 'var(--mantine-spacing-md)' }}>Library Management System</div>,
+    path: '/login',
+    element: <LoginPage />,
+  },
+  {
+    element: <ProtectedRoute />,
+    children: [
+      {
+        path: '/',
+        element: <HomePlaceholder />,
+      },
+    ],
   },
 ]);
