@@ -9,7 +9,7 @@ import { LoansPage } from '../features/loans/LoansPage';
 import { MyLoansPage } from '../features/loans/MyLoansPage';
 import { ReservationsPage } from '../features/reservations/ReservationsPage';
 import { MyReservationsPage } from '../features/reservations/MyReservationsPage';
-import { ComingSoonPage } from '../components/ComingSoonPage';
+import { ReportsPage } from '../features/reports/ReportsPage';
 import { ProtectedRoute } from './ProtectedRoute';
 import { AppShell } from './AppShell';
 import { Roles } from '../lib/roles';
@@ -39,7 +39,7 @@ export const router = createBrowserRouter([
               { path: '/members', element: <MembersPage /> },
               { path: '/loans', element: <LoansPage /> },
               { path: '/reservations', element: <ReservationsPage /> },
-              { path: '/reports', element: <ComingSoonPage title="Reports" /> },
+              { path: '/reports', element: <ReportsPage /> },
             ],
           },
         ],
